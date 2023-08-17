@@ -6,7 +6,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import br.com.bancosimplificado.math.useful.UserDeserializer;
 import jakarta.persistence.*;
 
 @Entity
@@ -26,11 +28,13 @@ public class Transactions {
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
 	@Column(nullable = false)
 	private LocalDateTime paymentDate;
-	
+
+	@JsonDeserialize(using = UserDeserializer.class)
 	@ManyToOne
 	@JoinColumn(name = "payer_id", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "payer_fk"))
 	private Users payer;
-	
+
+	@JsonDeserialize(using = UserDeserializer.class)
 	@ManyToOne
 	@JoinColumn(name = "payee_id", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "payee_fk"))
 	private Users payee;
