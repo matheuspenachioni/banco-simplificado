@@ -10,9 +10,9 @@ import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.com.bancosimplificado.math.enums.UserRole;
+import br.com.bancosimplificado.math.useful.ValidDocument;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table
@@ -33,7 +33,7 @@ public class Users {
 	
 	@Column(nullable = false, unique = true)
 	@Length(min = 11, max = 14)
-	@NotBlank(message = "O CPF/CNPJ deve ser informado!")
+	@ValidDocument
 	private String document;
 
 	@Email
