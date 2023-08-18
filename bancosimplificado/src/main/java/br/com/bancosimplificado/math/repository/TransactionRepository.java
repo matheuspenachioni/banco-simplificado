@@ -1,5 +1,6 @@
 package br.com.bancosimplificado.math.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,6 @@ import br.com.bancosimplificado.math.model.Transactions;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transactions, UUID> {
 
+	List<Transactions> findByPayerIdOrPayeeId(UUID payerId, UUID payeeId);
+	
 }
