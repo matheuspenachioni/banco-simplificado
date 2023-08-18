@@ -9,16 +9,19 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import br.com.bancosimplificado.math.enums.UserRole;
 import br.com.bancosimplificado.math.exception.type.DataIntegrityViolationException;
 import br.com.bancosimplificado.math.exception.type.ObjectNotFoundException;
+import br.com.bancosimplificado.math.mensageria.RabbitMQService;
 import br.com.bancosimplificado.math.model.Transactions;
 import br.com.bancosimplificado.math.model.Users;
 import br.com.bancosimplificado.math.repository.TransactionRepository;
 import br.com.bancosimplificado.math.repository.UserRepository;
 
+@Service
 public class TransactionService  {
 	
 	@Autowired
@@ -26,6 +29,9 @@ public class TransactionService  {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private RabbitMQService rabbitMQService;
 	
 	private RestTemplate restTemplate = new RestTemplate();
 	
@@ -57,13 +63,17 @@ public class TransactionService  {
             throw new DataIntegrityViolationException("Transação não autorizada!");
         }
 		
-        BigDecimal newBalancePayer = payer.get().getBalance().subtract(transaction.getValue());
-        payer.get().setBalance(newBalancePayer);
+        payer.get().setBalance(payer.get().getBalance().subtract(transaction.getValue()));
         userRepository.save(payer.get());
         
-        BigDecimal newBalancePayee = payee.get().getBalance().add(transaction.getValue());
-        payee.get().setBalance(newBalancePayee);
+        rabbitMQService.sendNotificationMessage(transaction.getPayer().getEmail(),"Notificação de Pagamento","O pagamento para "+
+        transaction.getPayee().getFirstName() + transaction.getPayee().getLastName() +" realizado com sucesso!");
+        
+        payee.get().setBalance(payee.get().getBalance().add(transaction.getValue()));
         userRepository.save(payee.get());
+        
+        rabbitMQService.sendNotificationMessage(transaction.getPayee().getEmail(),"Notificação de Pagamento","Você recebeu um pagamento de"+
+        transaction.getPayer().getFirstName()+ transaction.getPayer().getLastName() +"!");
         
 		return transactionRepository.saveAndFlush(transaction);
 	}
@@ -77,12 +87,10 @@ public class TransactionService  {
 			throw new ObjectNotFoundException("O Usuário e Lojista devem ser os mesmos deste pagamento!");
 		}
 		
-		BigDecimal newBalancePayee = payee.get().getBalance().subtract(transaction.get().getValue());
-        payee.get().setBalance(newBalancePayee);
+        payee.get().setBalance(payee.get().getBalance().subtract(transaction.get().getValue()));
         userRepository.save(payee.get());
         
-        BigDecimal newBalancePayer = payer.get().getBalance().add(transaction.get().getValue());
-        payer.get().setBalance(newBalancePayer);
+        payer.get().setBalance(payer.get().getBalance().add(transaction.get().getValue()));
         userRepository.save(payer.get());
 	}
 	
