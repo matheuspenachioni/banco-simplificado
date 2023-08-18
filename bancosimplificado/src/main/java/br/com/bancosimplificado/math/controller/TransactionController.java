@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.bancosimplificado.math.model.Transactions;
 import br.com.bancosimplificado.math.service.TransactionService;
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping(value = "transaction")
@@ -26,6 +27,7 @@ public class TransactionController {
 	private TransactionService transactionService;
 	
 	@GetMapping
+	@Operation(summary = "Lista todos os pagamentos")
 	public ResponseEntity<List<Transactions>> findAllPayments() {
 		List<Transactions> obj = transactionService.allTransactions();
 		
@@ -33,6 +35,7 @@ public class TransactionController {
 	}
 	
 	@GetMapping(value = "/user/{userId}")
+	@Operation(summary = "Lista todos os pagamentos de um usuário")
 	public ResponseEntity<List<Transactions>> findAllPaymentsOfUser(@PathVariable UUID userId) {
 		List<Transactions> obj = transactionService.allTransactionsOfUser(userId);
 		
@@ -40,6 +43,7 @@ public class TransactionController {
 	}
 	
 	@PostMapping
+	@Operation(summary = "Faz um pagamento")
 	public ResponseEntity<Transactions> makePayment(@RequestBody Transactions transaction) throws Exception {
 		Transactions obj = transactionService.makePayment(transaction);
 		
@@ -47,7 +51,9 @@ public class TransactionController {
 	}
 	
 	@PostMapping(value = "/revert/{id}")
+	@Operation(summary = "Reverte um pagamento")
 	public void revertPayment(@PathVariable UUID paymentId) {
 		transactionService.revertPayment(paymentId);
 	}
+	
 }
