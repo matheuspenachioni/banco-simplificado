@@ -1,5 +1,5 @@
 <h1 align="center">💵💶 Banco Simplificado 💴💷</h1>
-<span align="center">Teste técnico de back-end</span>
+<h3 align="center">Teste técnico de back-end</h3>
 
 ## Sobre
 Esse projeto é uma Rest API em Spring Boot para simular uma transação entre "payer" para "payee" de uma maneira bem simples...
